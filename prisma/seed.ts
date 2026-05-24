@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 
 const SEED_COUNT = 10_000;
 const BATCH_SIZE = 500;
+const forceSeed = process.argv.includes("--force");
 
 const COUNTRIES = ["US", "GB", "DE", "FR", "CA", "AU", "IN", "JP", "BR", "NL"] as const;
 
@@ -103,6 +104,13 @@ function buildEmployeeRow(
 
 async function main() {
   const totalStart = performance.now();
+  const existingCount = await prisma.employee.count();
+
+  if (existingCount > 0 && !forceSeed) {
+    console.log(`Seed skipped: employee table already has ${existingCount} rows.`);
+    console.log("Run npm run db:seed:force to clear and reseed employees.");
+    return;
+  }
 
   console.log("Loading name files...");
   const loadStart = performance.now();
@@ -113,11 +121,13 @@ async function main() {
     `Loaded ${firstNames.length} first names and ${lastNames.length} last names (${loadMs.toFixed(0)}ms)`,
   );
 
-  console.log("Clearing existing employees...");
-  const clearStart = performance.now();
-  const deleted = await prisma.employee.deleteMany();
-  const clearMs = performance.now() - clearStart;
-  console.log(`Deleted ${deleted.count} rows (${clearMs.toFixed(0)}ms)`);
+  if (forceSeed) {
+    console.log("Clearing existing employees...");
+    const clearStart = performance.now();
+    const deleted = await prisma.employee.deleteMany();
+    const clearMs = performance.now() - clearStart;
+    console.log(`Deleted ${deleted.count} rows (${clearMs.toFixed(0)}ms)`);
+  }
 
   console.log(`Generating ${SEED_COUNT} employee rows in memory...`);
   const genStart = performance.now();

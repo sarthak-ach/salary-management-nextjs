@@ -15,7 +15,9 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:force": "tsx prisma/seed.ts --force",
     "render:build": "npm run build && npm run db:deploy && npm run db:seed",
+    "render:start": "npm run db:deploy && npm run db:seed && npm run start -w @salary-management/api",
     "test:api": "npm run test -w @salary-management/api",
     "test:web": "npm run test -w @salary-management/web"
   },
