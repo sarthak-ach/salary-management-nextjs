@@ -48,6 +48,36 @@ describe("GET /employees", () => {
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(1);
     expect(response.body.pagination.total).toBe(1);
+    expect(employeeService.listEmployees).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      sortBy: "fullName",
+      sortOrder: "asc",
+    });
+  });
+
+  it("passes sorting query params to the service", async () => {
+    vi.mocked(employeeService.listEmployees).mockResolvedValue({
+      data: [],
+      pagination: {
+        page: 2,
+        limit: 10,
+        total: 0,
+        totalPages: 1,
+      },
+    });
+
+    const response = await request(app).get(
+      "/employees?page=2&limit=10&sortBy=salary&sortOrder=desc",
+    );
+
+    expect(response.status).toBe(200);
+    expect(employeeService.listEmployees).toHaveBeenCalledWith({
+      page: 2,
+      limit: 10,
+      sortBy: "salary",
+      sortOrder: "desc",
+    });
   });
 
   it("returns 400 for invalid query params", async () => {

@@ -60,6 +60,51 @@ describe("employeeService", () => {
     });
   });
 
+  it("applies filters, search, pagination, and requested sorting", async () => {
+    vi.mocked(prisma.employee.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.employee.count).mockResolvedValue(0);
+
+    const result = await employeeService.listEmployees({
+      page: 3,
+      limit: 10,
+      country: "US",
+      jobTitle: "Engineer",
+      search: "jane",
+      sortBy: "salary",
+      sortOrder: "desc",
+    });
+
+    expect(result.pagination).toEqual({
+      page: 3,
+      limit: 10,
+      total: 0,
+      totalPages: 1,
+    });
+    expect(prisma.employee.findMany).toHaveBeenCalledWith({
+      where: {
+        country: { equals: "US", mode: "insensitive" },
+        jobTitle: { equals: "Engineer", mode: "insensitive" },
+        OR: [
+          { fullName: { contains: "jane", mode: "insensitive" } },
+          { email: { contains: "jane", mode: "insensitive" } },
+        ],
+      },
+      skip: 20,
+      take: 10,
+      orderBy: { salary: "desc" },
+    });
+    expect(prisma.employee.count).toHaveBeenCalledWith({
+      where: {
+        country: { equals: "US", mode: "insensitive" },
+        jobTitle: { equals: "Engineer", mode: "insensitive" },
+        OR: [
+          { fullName: { contains: "jane", mode: "insensitive" } },
+          { email: { contains: "jane", mode: "insensitive" } },
+        ],
+      },
+    });
+  });
+
   it("returns null when employee is not found", async () => {
     vi.mocked(prisma.employee.findUnique).mockResolvedValue(null);
 

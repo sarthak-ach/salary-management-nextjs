@@ -38,6 +38,35 @@ describe("api client", () => {
     expect(result).toEqual(payload);
   });
 
+  it("sends employee list sorting and filters as query params", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        data: [],
+        pagination: { page: 1, limit: 20, total: 0, totalPages: 1 },
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await api.listEmployees({
+      page: 1,
+      limit: 20,
+      search: "jane",
+      country: "US",
+      jobTitle: "Engineer",
+      sortBy: "salary",
+      sortOrder: "desc",
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:3001/employees?page=1&limit=20&country=US&jobTitle=Engineer&search=jane&sortBy=salary&sortOrder=desc",
+      expect.objectContaining({
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+  });
+
   it("ApiError exposes status and message", () => {
     const error = new ApiError(400, "Bad request");
     expect(error).toBeInstanceOf(Error);

@@ -88,4 +88,13 @@ describe("listEmployeesQuerySchema", () => {
       sortOrder: "desc",
     });
   });
+
+  it("rejects unsupported sorting fields", () => {
+    const result = listEmployeesQuerySchema.safeParse({
+      sortBy: "email",
+      sortOrder: "asc",
+    });
+
+    expect(result.success).toBe(false);
+  });
 });

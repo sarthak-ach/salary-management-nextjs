@@ -184,6 +184,9 @@ export function EmployeesPage() {
   const table = useReactTable({
     data: data?.data ?? [],
     columns,
+    defaultColumn: {
+      sortDescFirst: false,
+    },
     state: {
       sorting,
     },
