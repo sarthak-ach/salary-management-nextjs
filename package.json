@@ -11,9 +11,11 @@
     "dev:api": "npm run dev -w @salary-management/api",
     "build": "npm run db:generate && npm run build -w @salary-management/shared && npm run build -w @salary-management/api && npm run build -w @salary-management/web",
     "db:generate": "prisma generate",
+    "db:deploy": "prisma migrate deploy",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "render:build": "npm run build && npm run db:deploy && npm run db:seed",
     "test:api": "npm run test -w @salary-management/api",
     "test:web": "npm run test -w @salary-management/web"
   },
