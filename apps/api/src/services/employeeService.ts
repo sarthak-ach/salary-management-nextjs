@@ -53,7 +53,7 @@ export async function listEmployees(
       where,
       skip,
       take: query.limit,
-      orderBy: { fullName: "asc" },
+      orderBy: { [query.sortBy]: query.sortOrder },
     }),
     prisma.employee.count({ where }),
   ]);

@@ -9,6 +9,18 @@ export const listEmployeesQuerySchema = paginationQuerySchema.extend({
   country: z.string().min(2).max(100).optional(),
   jobTitle: z.string().min(1).max(200).optional(),
   search: z.string().min(1).max(200).optional(),
+  sortBy: z
+    .enum([
+      "fullName",
+      "jobTitle",
+      "country",
+      "department",
+      "salary",
+      "employmentType",
+      "startDate",
+    ])
+    .default("fullName"),
+  sortOrder: z.enum(["asc", "desc"]).default("asc"),
 });
 
 export const employeeIdParamSchema = z.object({

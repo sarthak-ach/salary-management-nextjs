@@ -6,8 +6,19 @@ import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
+  type SortingState,
 } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, Pencil, Plus, Trash2 } from "lucide-react";
+import type { ListEmployeesQuery } from "@salary-management/shared";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -52,20 +63,39 @@ export function EmployeesPage() {
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(
     null,
   );
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "fullName", desc: false },
+  ]);
+  const activeSort = sorting[0];
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, filters.country, filters.jobTitle]);
+  }, [
+    debouncedSearch,
+    filters.country,
+    filters.jobTitle,
+    activeSort?.id,
+    activeSort?.desc,
+  ]);
 
-  const query = useMemo(
+  const query = useMemo<ListEmployeesQuery>(
     () => ({
       page,
       limit: PAGE_SIZE,
       search: debouncedSearch || undefined,
       country: filters.country || undefined,
       jobTitle: filters.jobTitle || undefined,
+      sortBy: (activeSort?.id ?? "fullName") as ListEmployeesQuery["sortBy"],
+      sortOrder: activeSort?.desc ? "desc" : "asc",
     }),
-    [page, debouncedSearch, filters.country, filters.jobTitle],
+    [
+      page,
+      debouncedSearch,
+      filters.country,
+      filters.jobTitle,
+      activeSort?.id,
+      activeSort?.desc,
+    ],
   );
 
   const { data, isLoading, isError, error, isFetching } = useEmployees(query);
@@ -145,6 +175,7 @@ export function EmployeesPage() {
             </Button>
           </div>
         ),
+        enableSorting: false,
       },
     ],
     [],
@@ -153,8 +184,13 @@ export function EmployeesPage() {
   const table = useReactTable({
     data: data?.data ?? [],
     columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
+    manualSorting: true,
     pageCount: data?.pagination.totalPages ?? 0,
   });
 
@@ -203,16 +239,49 @@ export function EmployeesPage() {
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
+                    {headerGroup.headers.map((header) => {
+                      const sortDirection = header.column.getIsSorted();
+
+                      return (
+                        <TableHead
+                          key={header.id}
+                          aria-sort={
+                            sortDirection === "asc"
+                              ? "ascending"
+                              : sortDirection === "desc"
+                                ? "descending"
+                                : undefined
+                          }
+                        >
+                          {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              type="button"
+                              className="-ml-3 h-8 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
+                              onClick={header.column.getToggleSortingHandler()}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                              {sortDirection === "asc" ? (
+                                <ArrowUp className="h-3.5 w-3.5" />
+                              ) : sortDirection === "desc" ? (
+                                <ArrowDown className="h-3.5 w-3.5" />
+                              ) : (
+                                <ArrowUpDown className="h-3.5 w-3.5 opacity-55" />
+                              )}
+                            </Button>
+                          ) : (
+                            flexRender(
                               header.column.columnDef.header,
                               header.getContext(),
-                            )}
-                      </TableHead>
-                    ))}
+                            )
+                          )}
+                        </TableHead>
+                      );
+                    })}
                   </TableRow>
                 ))}
               </TableHeader>

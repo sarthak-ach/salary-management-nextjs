@@ -38,10 +38,20 @@ describe("employeeService", () => {
     vi.mocked(prisma.employee.findMany).mockResolvedValue([mockEmployee as never]);
     vi.mocked(prisma.employee.count).mockResolvedValue(1);
 
-    const result = await employeeService.listEmployees({ page: 1, limit: 20 });
+    const result = await employeeService.listEmployees({
+      page: 1,
+      limit: 20,
+      sortBy: "fullName",
+      sortOrder: "asc",
+    });
 
     expect(result.data).toHaveLength(1);
     expect(result.data[0]?.salary).toBe(85_000);
+    expect(prisma.employee.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: { fullName: "asc" },
+      }),
+    );
     expect(result.pagination).toEqual({
       page: 1,
       limit: 20,

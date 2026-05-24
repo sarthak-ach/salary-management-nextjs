@@ -58,6 +58,8 @@ describe("listEmployeesQuerySchema", () => {
     expect(listEmployeesQuerySchema.parse({})).toEqual({
       page: 1,
       limit: 20,
+      sortBy: "fullName",
+      sortOrder: "asc",
     });
   });
 
@@ -65,11 +67,25 @@ describe("listEmployeesQuerySchema", () => {
     expect(listEmployeesQuerySchema.parse({ page: "2", limit: "50" })).toEqual({
       page: 2,
       limit: 50,
+      sortBy: "fullName",
+      sortOrder: "asc",
     });
   });
 
   it("rejects limit above maximum", () => {
     const result = listEmployeesQuerySchema.safeParse({ limit: 101 });
     expect(result.success).toBe(false);
+  });
+
+  it("accepts valid sorting values", () => {
+    expect(
+      listEmployeesQuerySchema.parse({
+        sortBy: "salary",
+        sortOrder: "desc",
+      }),
+    ).toMatchObject({
+      sortBy: "salary",
+      sortOrder: "desc",
+    });
   });
 });

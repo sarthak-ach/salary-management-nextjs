@@ -69,6 +69,8 @@ export const api = {
         country: query.country,
         jobTitle: query.jobTitle,
         search: query.search,
+        sortBy: query.sortBy,
+        sortOrder: query.sortOrder,
       })}`,
     );
   },
