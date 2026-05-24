@@ -18,21 +18,22 @@ export function useInsightsSummary() {
   });
 }
 
-export function useCountryInsights(country: string | null) {
+export function useCountryInsights(country: string | null, enabled = true) {
   return useQuery({
     queryKey: insightKeys.country(country ?? ""),
     queryFn: () => api.getCountryInsights(country!),
-    enabled: Boolean(country),
+    enabled: Boolean(enabled && country),
   });
 }
 
 export function useCountryJobTitleInsights(
   country: string | null,
   jobTitle: string | null,
+  enabled = true,
 ) {
   return useQuery({
     queryKey: insightKeys.countryJobTitle(country ?? "", jobTitle ?? ""),
     queryFn: () => api.getCountryJobTitleInsights(country!, jobTitle!),
-    enabled: Boolean(country && jobTitle),
+    enabled: Boolean(enabled && country && jobTitle),
   });
 }

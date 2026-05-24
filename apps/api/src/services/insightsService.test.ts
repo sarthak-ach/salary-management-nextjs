@@ -73,6 +73,17 @@ describe("insightsService", () => {
         over150k: 0n,
       },
     ] as never);
+    vi.mocked(prisma.employee.aggregate)
+      .mockResolvedValueOnce({
+        _min: { salary: { toNumber: () => 50_000 } },
+        _max: { salary: { toNumber: () => 125_000 } },
+        _avg: { salary: { toNumber: () => 87_500 } },
+        _count: 2,
+      } as never)
+      .mockResolvedValueOnce({
+        _avg: { salary: { toNumber: () => 95_000 } },
+        _count: 1,
+      } as never);
 
     const result = await insights.getInsightsSummary();
 
@@ -92,6 +103,19 @@ describe("insightsService", () => {
       { label: "100k - 150k", count: 1 },
       { label: "150k+", count: 0 },
     ]);
+    expect(result.defaultCountryInsights).toEqual({
+      country: "US",
+      min: 50_000,
+      max: 125_000,
+      avg: 87_500,
+      count: 2,
+    });
+    expect(result.defaultCountryJobTitleInsights).toEqual({
+      country: "US",
+      jobTitle: "Software Engineer",
+      avg: 95_000,
+      count: 1,
+    });
     expect(prisma.$queryRaw).toHaveBeenCalledOnce();
   });
 });

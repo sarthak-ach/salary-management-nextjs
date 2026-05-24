@@ -44,4 +44,6 @@ export interface InsightsSummary {
   headcountByCountry: { country: string; count: number }[];
   topJobTitles: { jobTitle: string; count: number }[];
   salaryBands: { label: string; count: number }[];
+  defaultCountryInsights: CountryInsights;
+  defaultCountryJobTitleInsights: CountryJobTitleInsights;
 }

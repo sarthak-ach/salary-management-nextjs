@@ -21,7 +21,12 @@ export interface InsightsSummary {
   headcountByCountry: { country: string; count: number }[];
   topJobTitles: { jobTitle: string; count: number }[];
   salaryBands: { label: string; count: number }[];
+  defaultCountryInsights: CountryInsights;
+  defaultCountryJobTitleInsights: CountryJobTitleInsights;
 }
+
+const DEFAULT_INSIGHTS_COUNTRY = "US";
+const DEFAULT_INSIGHTS_JOB_TITLE = "Software Engineer";
 
 function decimalToNumber(value: { toNumber(): number } | null): number {
   return value?.toNumber() ?? 0;
@@ -110,22 +115,33 @@ export async function getCountryJobTitleInsights(
 }
 
 export async function getInsightsSummary(): Promise<InsightsSummary> {
-  const [totalEmployees, headcountByCountry, topJobTitles, salaryBands] =
-    await Promise.all([
-      prisma.employee.count(),
-      prisma.employee.groupBy({
-        by: ["country"],
-        _count: { _all: true },
-        orderBy: { _count: { country: "desc" } },
-      }),
-      prisma.employee.groupBy({
-        by: ["jobTitle"],
-        _count: { _all: true },
-        orderBy: { _count: { jobTitle: "desc" } },
-        take: 10,
-      }),
-      getSalaryBandDistribution(),
-    ]);
+  const [
+    totalEmployees,
+    headcountByCountry,
+    topJobTitles,
+    salaryBands,
+    defaultCountryInsights,
+    defaultCountryJobTitleInsights,
+  ] = await Promise.all([
+    prisma.employee.count(),
+    prisma.employee.groupBy({
+      by: ["country"],
+      _count: { _all: true },
+      orderBy: { _count: { country: "desc" } },
+    }),
+    prisma.employee.groupBy({
+      by: ["jobTitle"],
+      _count: { _all: true },
+      orderBy: { _count: { jobTitle: "desc" } },
+      take: 10,
+    }),
+    getSalaryBandDistribution(),
+    getCountryInsights(DEFAULT_INSIGHTS_COUNTRY),
+    getCountryJobTitleInsights(
+      DEFAULT_INSIGHTS_COUNTRY,
+      DEFAULT_INSIGHTS_JOB_TITLE,
+    ),
+  ]);
 
   return {
     totalEmployees,
@@ -138,5 +154,7 @@ export async function getInsightsSummary(): Promise<InsightsSummary> {
       count: row._count._all,
     })),
     salaryBands,
+    defaultCountryInsights,
+    defaultCountryJobTitleInsights,
   };
 }

@@ -33,11 +33,29 @@ export function InsightsDashboard() {
   );
 
   const summaryQuery = useInsightsSummary();
-  const countryQuery = useCountryInsights(selectedCountry);
+  const defaultCountryInsights =
+    summaryQuery.data?.defaultCountryInsights.country === selectedCountry
+      ? summaryQuery.data.defaultCountryInsights
+      : undefined;
+  const defaultCountryJobTitleInsights =
+    summaryQuery.data?.defaultCountryJobTitleInsights.country ===
+      selectedCountry &&
+    summaryQuery.data.defaultCountryJobTitleInsights.jobTitle ===
+      selectedJobTitle
+      ? summaryQuery.data.defaultCountryJobTitleInsights
+      : undefined;
+  const countryQuery = useCountryInsights(
+    selectedCountry,
+    Boolean(summaryQuery.data && !defaultCountryInsights),
+  );
   const jobTitleQuery = useCountryJobTitleInsights(
     selectedCountry,
     selectedJobTitle,
+    Boolean(summaryQuery.data && !defaultCountryJobTitleInsights),
   );
+  const countryInsights = defaultCountryInsights ?? countryQuery.data;
+  const countryJobTitleInsights =
+    defaultCountryJobTitleInsights ?? jobTitleQuery.data;
 
   const maxHeadcount = Math.max(
     ...(summaryQuery.data?.headcountByCountry.map((row) => row.count) ?? [1]),
@@ -232,7 +250,7 @@ export function InsightsDashboard() {
             ))}
           </div>
 
-          {countryQuery.isLoading ? (
+          {summaryQuery.isLoading || countryQuery.isLoading ? (
             <div className="grid gap-4 sm:grid-cols-4">
               {Array.from({ length: 4 }).map((_, index) => (
                 <Skeleton key={index} className="h-20" />
@@ -242,31 +260,31 @@ export function InsightsDashboard() {
             <p className="text-sm text-destructive">
               {countryQuery.error.message}
             </p>
-          ) : countryQuery.data ? (
+          ) : countryInsights ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <MetricCard
                 title="Employees"
-                value={formatNumber(countryQuery.data.count)}
+                value={formatNumber(countryInsights.count)}
               />
               <MetricCard
                 title="Minimum"
                 value={formatSalary(
-                  countryQuery.data.country,
-                  countryQuery.data.min,
+                  countryInsights.country,
+                  countryInsights.min,
                 )}
               />
               <MetricCard
                 title="Average"
                 value={formatSalary(
-                  countryQuery.data.country,
-                  countryQuery.data.avg,
+                  countryInsights.country,
+                  countryInsights.avg,
                 )}
               />
               <MetricCard
                 title="Maximum"
                 value={formatSalary(
-                  countryQuery.data.country,
-                  countryQuery.data.max,
+                  countryInsights.country,
+                  countryInsights.max,
                 )}
               />
             </div>
@@ -321,32 +339,33 @@ export function InsightsDashboard() {
             </div>
           </div>
 
-          {jobTitleQuery.isLoading ? (
+          {summaryQuery.isLoading || jobTitleQuery.isLoading ? (
             <Skeleton className="h-20 w-full max-w-sm" />
           ) : jobTitleQuery.isError ? (
             <p className="text-sm text-destructive">
               {jobTitleQuery.error.message}
             </p>
-          ) : jobTitleQuery.data ? (
+          ) : countryJobTitleInsights ? (
             <div
               className={cn(
                 "rounded-xl border border-chart-3/30 bg-gradient-to-br from-chart-3/10 to-chart-2/5 p-4",
-                jobTitleQuery.data.count === 0 && "text-muted-foreground",
+                countryJobTitleInsights.count === 0 && "text-muted-foreground",
               )}
             >
               <p className="text-sm text-muted-foreground">
-                {jobTitleQuery.data.jobTitle} · {jobTitleQuery.data.country}
+                {countryJobTitleInsights.jobTitle} ·{" "}
+                {countryJobTitleInsights.country}
               </p>
               <p className="mt-1 text-2xl font-semibold">
-                {jobTitleQuery.data.count > 0
+                {countryJobTitleInsights.count > 0
                   ? formatSalary(
-                      jobTitleQuery.data.country,
-                      jobTitleQuery.data.avg,
+                      countryJobTitleInsights.country,
+                      countryJobTitleInsights.avg,
                     )
                   : "No employees"}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {formatNumber(jobTitleQuery.data.count)} employees in this
+                {formatNumber(countryJobTitleInsights.count)} employees in this
                 segment
               </p>
             </div>
