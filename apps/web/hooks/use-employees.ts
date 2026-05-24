@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
@@ -24,6 +25,7 @@ export function useEmployees(query: ListEmployeesQuery) {
   return useQuery({
     queryKey: employeeKeys.list(query),
     queryFn: () => api.listEmployees(query),
+    placeholderData: keepPreviousData,
   });
 }
 

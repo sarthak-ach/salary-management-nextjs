@@ -1,6 +1,7 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import {
-  computeSalaryBandDistribution,
+  SALARY_BANDS,
   type SalaryStats,
 } from "../lib/aggregations.js";
 
@@ -24,6 +25,47 @@ export interface InsightsSummary {
 
 function decimalToNumber(value: { toNumber(): number } | null): number {
   return value?.toNumber() ?? 0;
+}
+
+function countToNumber(value: bigint | number | null | undefined): number {
+  return Number(value ?? 0);
+}
+
+async function getSalaryBandDistribution(): Promise<
+  { label: string; count: number }[]
+> {
+  const [row] = await prisma.$queryRaw<
+    [
+      {
+        under50k: bigint;
+        from50kTo75k: bigint;
+        from75kTo100k: bigint;
+        from100kTo150k: bigint;
+        over150k: bigint;
+      },
+    ]
+  >(Prisma.sql`
+    SELECT
+      COUNT(*) FILTER (WHERE salary < 50000) AS "under50k",
+      COUNT(*) FILTER (WHERE salary >= 50000 AND salary < 75000) AS "from50kTo75k",
+      COUNT(*) FILTER (WHERE salary >= 75000 AND salary < 100000) AS "from75kTo100k",
+      COUNT(*) FILTER (WHERE salary >= 100000 AND salary < 150000) AS "from100kTo150k",
+      COUNT(*) FILTER (WHERE salary >= 150000) AS "over150k"
+    FROM "Employee"
+  `);
+
+  const counts = [
+    row?.under50k,
+    row?.from50kTo75k,
+    row?.from75kTo100k,
+    row?.from100kTo150k,
+    row?.over150k,
+  ];
+
+  return SALARY_BANDS.map((band, index) => ({
+    label: band.label,
+    count: countToNumber(counts[index]),
+  }));
 }
 
 export async function getCountryInsights(
@@ -68,7 +110,7 @@ export async function getCountryJobTitleInsights(
 }
 
 export async function getInsightsSummary(): Promise<InsightsSummary> {
-  const [totalEmployees, headcountByCountry, topJobTitles, salaries] =
+  const [totalEmployees, headcountByCountry, topJobTitles, salaryBands] =
     await Promise.all([
       prisma.employee.count(),
       prisma.employee.groupBy({
@@ -82,7 +124,7 @@ export async function getInsightsSummary(): Promise<InsightsSummary> {
         orderBy: { _count: { jobTitle: "desc" } },
         take: 10,
       }),
-      prisma.employee.findMany({ select: { salary: true } }),
+      getSalaryBandDistribution(),
     ]);
 
   return {
@@ -95,8 +137,6 @@ export async function getInsightsSummary(): Promise<InsightsSummary> {
       jobTitle: row.jobTitle,
       count: row._count._all,
     })),
-    salaryBands: computeSalaryBandDistribution(
-      salaries.map((row) => row.salary.toNumber()),
-    ),
+    salaryBands,
   };
 }

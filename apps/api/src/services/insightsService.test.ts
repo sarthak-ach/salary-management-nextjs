@@ -4,11 +4,11 @@ import * as insights from "./insightsService.js";
 
 vi.mock("../lib/prisma.js", () => ({
   prisma: {
+    $queryRaw: vi.fn(),
     employee: {
       aggregate: vi.fn(),
       count: vi.fn(),
       groupBy: vi.fn(),
-      findMany: vi.fn(),
     },
   },
 }));
@@ -64,10 +64,14 @@ describe("insightsService", () => {
         { jobTitle: "Engineer", _count: { _all: 2 } },
         { jobTitle: "Designer", _count: { _all: 1 } },
       ] as never);
-    vi.mocked(prisma.employee.findMany).mockResolvedValue([
-      { salary: { toNumber: () => 40_000 } },
-      { salary: { toNumber: () => 60_000 } },
-      { salary: { toNumber: () => 120_000 } },
+    vi.mocked(prisma.$queryRaw).mockResolvedValue([
+      {
+        under50k: 1n,
+        from50kTo75k: 1n,
+        from75kTo100k: 0n,
+        from100kTo150k: 1n,
+        over150k: 0n,
+      },
     ] as never);
 
     const result = await insights.getInsightsSummary();
@@ -88,5 +92,6 @@ describe("insightsService", () => {
       { label: "100k - 150k", count: 1 },
       { label: "150k+", count: 0 },
     ]);
+    expect(prisma.$queryRaw).toHaveBeenCalledOnce();
   });
 });
