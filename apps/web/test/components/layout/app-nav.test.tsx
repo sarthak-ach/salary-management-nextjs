@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { usePathname } from "next/navigation";
-import { AppNav } from "./app-nav";
+import { AppNav } from "@/components/layout/app-nav";
 
 vi.mock("next-themes", () => ({
   useTheme: () => ({

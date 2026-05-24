@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { ThemeToggle } from "./theme-toggle";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const setTheme = vi.fn();
 

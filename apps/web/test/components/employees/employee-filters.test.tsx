@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   EmployeeFilters,
   type EmployeeFiltersState,
-} from "./employee-filters";
+} from "@/components/employees/employee-filters";
 
 function FiltersHarness() {
   const [filters, setFilters] = useState<EmployeeFiltersState>({

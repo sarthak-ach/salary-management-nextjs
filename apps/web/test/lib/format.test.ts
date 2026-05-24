@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatNumber, formatSalary, toDateInputValue } from "./format";
+import { formatDate, formatNumber, formatSalary, toDateInputValue } from "@/lib/format";
 
 describe("format utilities", () => {
   it("formats numbers with grouping", () => {

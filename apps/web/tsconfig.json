@@ -14,12 +14,14 @@
     }
   },
   "include": ["next-env.d.ts", "vitest-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "references": [{ "path": "./tsconfig.test.json" }],
+  "references": [
+    { "path": "./tsconfig.test.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
   "exclude": [
     "node_modules",
     "vitest.config.ts",
     "vitest.setup.ts",
-    "**/*.test.ts",
-    "**/*.test.tsx"
+    "test"
   ]
 }

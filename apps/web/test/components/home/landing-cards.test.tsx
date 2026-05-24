@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { LandingCards } from "./landing-cards";
+import { LandingCards } from "@/components/home/landing-cards";
 
 describe("LandingCards", () => {
   it("renders employee and insights cards with CTAs", () => {
