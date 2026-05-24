@@ -13,6 +13,13 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "vitest-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "references": [{ "path": "./tsconfig.test.json" }],
+  "exclude": [
+    "node_modules",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
 }

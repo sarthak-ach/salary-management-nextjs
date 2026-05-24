@@ -92,7 +92,9 @@ export function EmployeesPage() {
         accessorKey: "country",
         header: "Country",
         cell: ({ row }) => (
-          <Badge variant="outline">{row.original.country}</Badge>
+          <Badge className="border-chart-2/30 bg-chart-2/10 text-chart-2">
+            {row.original.country}
+          </Badge>
         ),
       },
       {
@@ -162,12 +164,16 @@ export function EmployeesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Employees</h1>
+          <p className="text-xs font-semibold uppercase tracking-wider text-chart-2">
+            Directory
+          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Employees</h1>
           <p className="text-sm text-muted-foreground">
             Manage your workforce directory with search, filters, and pagination.
           </p>
         </div>
         <Button
+          className="shadow-md shadow-primary/20"
           onClick={() => {
             setEditingEmployee(null);
             setFormOpen(true);
@@ -180,7 +186,7 @@ export function EmployeesPage() {
 
       <EmployeeFilters filters={filters} onChange={setFilters} />
 
-      <div className="rounded-lg border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
         {isLoading ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 8 }).map((_, index) => (

@@ -14,7 +14,8 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "test:api": "npm run test -w @salary-management/api"
+    "test:api": "npm run test -w @salary-management/api",
+    "test:web": "npm run test -w @salary-management/web"
   },
   "devDependencies": {
     "@prisma/client": "^6.8.2",

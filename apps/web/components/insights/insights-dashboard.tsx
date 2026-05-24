@@ -49,8 +49,11 @@ export function InsightsDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Salary insights
+        <p className="text-xs font-semibold uppercase tracking-wider text-chart-3">
+          Analytics
+        </p>
+        <h1 className="text-2xl font-bold tracking-tight">
+          <span className="text-gradient">Salary insights</span>
         </h1>
         <p className="text-sm text-muted-foreground">
           Organization-wide metrics with country and job-title drill-down.
@@ -76,6 +79,7 @@ export function InsightsDashboard() {
               title="Total employees"
               value={formatNumber(summaryQuery.data.totalEmployees)}
               description="Across all countries"
+              accent="chart-1"
             />
             <MetricCard
               title="Countries"
@@ -83,6 +87,7 @@ export function InsightsDashboard() {
                 summaryQuery.data.headcountByCountry.length,
               )}
               description="With active headcount"
+              accent="chart-2"
             />
             <MetricCard
               title="Top job title"
@@ -92,6 +97,7 @@ export function InsightsDashboard() {
                   ? `${formatNumber(summaryQuery.data.topJobTitles[0].count)} employees`
                   : "No data"
               }
+              accent="chart-3"
             />
             <MetricCard
               title="Largest band"
@@ -101,6 +107,7 @@ export function InsightsDashboard() {
                 )[0]?.label ?? "—"
               }
               description="By employee count"
+              accent="chart-4"
             />
           </div>
 
@@ -111,7 +118,7 @@ export function InsightsDashboard() {
                 <CardDescription>Employee distribution</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {summaryQuery.data.headcountByCountry.map((row) => (
+                {summaryQuery.data.headcountByCountry.map((row, index) => (
                   <div key={row.country} className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium">{row.country}</span>
@@ -121,7 +128,14 @@ export function InsightsDashboard() {
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full rounded-full bg-primary transition-all"
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          index % 5 === 0 && "bg-chart-1",
+                          index % 5 === 1 && "bg-chart-2",
+                          index % 5 === 2 && "bg-chart-3",
+                          index % 5 === 3 && "bg-chart-4",
+                          index % 5 === 4 && "bg-chart-5",
+                        )}
                         style={{
                           width: `${(row.count / maxHeadcount) * 100}%`,
                         }}
@@ -138,7 +152,7 @@ export function InsightsDashboard() {
                 <CardDescription>Global distribution</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {summaryQuery.data.salaryBands.map((band) => (
+                {summaryQuery.data.salaryBands.map((band, index) => (
                   <div key={band.label} className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium">{band.label}</span>
@@ -148,7 +162,14 @@ export function InsightsDashboard() {
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full rounded-full bg-primary/70 transition-all"
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          index % 5 === 0 && "bg-chart-5",
+                          index % 5 === 1 && "bg-chart-4",
+                          index % 5 === 2 && "bg-chart-3",
+                          index % 5 === 3 && "bg-chart-2",
+                          index % 5 === 4 && "bg-chart-1",
+                        )}
                         style={{
                           width: `${(band.count / maxBandCount) * 100}%`,
                         }}
@@ -309,7 +330,7 @@ export function InsightsDashboard() {
           ) : jobTitleQuery.data ? (
             <div
               className={cn(
-                "rounded-lg border bg-muted/40 p-4",
+                "rounded-xl border border-chart-3/30 bg-gradient-to-br from-chart-3/10 to-chart-2/5 p-4",
                 jobTitleQuery.data.count === 0 && "text-muted-foreground",
               )}
             >
@@ -336,17 +357,32 @@ export function InsightsDashboard() {
   );
 }
 
+const accentStyles = {
+  "chart-1": "border-chart-1/30 from-chart-1/10",
+  "chart-2": "border-chart-2/30 from-chart-2/10",
+  "chart-3": "border-chart-3/30 from-chart-3/10",
+  "chart-4": "border-chart-4/30 from-chart-4/10",
+  "chart-5": "border-chart-5/30 from-chart-5/10",
+} as const;
+
 function MetricCard({
   title,
   value,
   description,
+  accent = "chart-1",
 }: {
   title: string;
   value: string;
   description?: string;
+  accent?: keyof typeof accentStyles;
 }) {
   return (
-    <Card>
+    <Card
+      className={cn(
+        "border bg-gradient-to-br to-transparent",
+        accentStyles[accent],
+      )}
+    >
       <CardHeader className="pb-2">
         <CardDescription>{title}</CardDescription>
         <CardTitle className="text-2xl">{value}</CardTitle>
