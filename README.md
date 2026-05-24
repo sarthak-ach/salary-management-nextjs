@@ -133,7 +133,8 @@ npm run db:generate  # Generate Prisma Client
 npm run db:migrate   # Run local development migrations
 npm run db:deploy    # Apply migrations in production
 npm run db:push      # Push schema without creating a migration
-npm run db:seed      # Clear and reseed employees
+npm run db:seed      # Clear and reseed 10,000 employees
+npm run db:seed:if-empty # Seed only when the employee table is empty
 ```
 
 ## Deployment
@@ -154,9 +155,10 @@ npm run render:start
 
 Set `DATABASE_URL` in Render to your Neon or PostgreSQL connection string.
 `render:build` builds the app, applies Prisma migrations with
-`prisma migrate deploy`, and seeds employee data. `render:start` also applies
-migrations and seeds only when the employee table is empty before starting the
-API, which protects fresh Neon databases when Render starts the service.
+`prisma migrate deploy`, and seeds employee data only when the employee table is
+empty. `render:start` repeats the migration and empty-table seed check before
+starting the API, which protects fresh Neon databases when Render starts the
+service without wiping data on every restart.
 
 If Render's Root Directory is set to `apps/api`, use the same start command:
 
