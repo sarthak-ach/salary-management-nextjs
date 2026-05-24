@@ -149,12 +149,23 @@ npm install --include=dev && npm run render:build
 Start command:
 
 ```bash
-npm run start -w @salary-management/api
+npm run render:start
 ```
 
 Set `DATABASE_URL` in Render to your Neon or PostgreSQL connection string.
 `render:build` builds the app, applies Prisma migrations with
-`prisma migrate deploy`, and seeds employee data.
+`prisma migrate deploy`, and seeds employee data. `render:start` also applies
+migrations and seeds only when the employee table is empty before starting the
+API, which protects fresh Neon databases when Render starts the service.
+
+If Render's Root Directory is set to `apps/api`, use the same start command:
+
+```bash
+npm run render:start
+```
+
+The API workspace contains a matching script that calls the root Prisma scripts
+and then starts `dist/index.js`.
 
 ### Vercel Web
 
