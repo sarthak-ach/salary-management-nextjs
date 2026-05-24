@@ -9,7 +9,7 @@
     "dev": "npm run dev --workspaces --if-present",
     "dev:web": "npm run dev -w @salary-management/web",
     "dev:api": "npm run dev -w @salary-management/api",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run db:generate && npm run build -w @salary-management/shared && npm run build -w @salary-management/api && npm run build -w @salary-management/web",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
